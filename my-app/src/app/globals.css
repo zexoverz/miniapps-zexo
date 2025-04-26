@@ -1,0 +1,25 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+input, 
+textarea, 
+select, 
+button {
+  font-size: 16px; /* Minimum font size to prevent zoom on iOS */
+}
+
+/* Ensure consistent text size */
+@media screen and (max-width: 768px) {
+  input, textarea, select, button {
+    font-size: 16px;
+    max-height: 100%;
+  }
+  
+  .form-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+}
