@@ -91,12 +91,6 @@ const config = {
 export default config
 ```
 
-2. Install the required Tailwind animation plugin:
-
-```bash
-npm install tailwindcss-animate
-```
-
 ## Step 2: Update Global CSS
 
 Update the `global.css` file in your app directory to include better mobile support:
