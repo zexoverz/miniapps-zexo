@@ -902,9 +902,15 @@ install frontend dependencise
 yarn install
 ```
 
+install react hot toast (for toaster)
+
+```bash
+yarn add react-hot-toast
+```
+
 NOTE: package manager are freedom, you use npm, yarn, pnpm or any
 
-2. Keep only the essential components:
+2. Keep only the essential components , Remove the rest:
    - `VerifyButton.tsx`
    - `WalletAuthButton.tsx`
 
@@ -959,21 +965,30 @@ export default function TokenFactory() {
 }
 ```
 
+and import TokenFactory into our page.tsx
+
+```
+import TokenFactory from "@/components/TokenFactory";
+....
+```
+
 ## Step 4: Run Local Development Environment
 
 1. Start your frontend application:
 
 ```bash
-cd my-app
-npm install
-npm run dev
+yarn dev
 ```
 
 2. Open a new terminal and start ngrok for tunneling:
 
 ```bash
-ngrok http 3000
+ngrok http http://localhost:3000
 ```
+
+![image](https://github.com/user-attachments/assets/30b91fe5-9aad-457b-9888-1946a18fda49)
+
+get fowarding URL
 
 Note the HTTPS URL provided by ngrok (e.g., `https://a1b2c3d4.ngrok.io`). You'll need this URL in the next step.
 
@@ -982,6 +997,9 @@ Note the HTTPS URL provided by ngrok (e.g., `https://a1b2c3d4.ngrok.io`). You'll
 1. Go to the Worldcoin Developer Portal: https://developer.worldcoin.org/
 
 2. Log in to the dashboard and create a new project.
+
+![image](https://github.com/user-attachments/assets/b645259d-6108-4f82-b9f0-eff46a22707a)
+
 
 3. Fill in the project details:
    - **Name**: Your mini app name
@@ -997,22 +1015,31 @@ Note the HTTPS URL provided by ngrok (e.g., `https://a1b2c3d4.ngrok.io`). You'll
 
 2. Create a new action with the identifier `web3-template` (to match the template project).
 
+![image](https://github.com/user-attachments/assets/4f1c596a-c2bb-45e3-968a-ec7435a6c942)
+
+
 ## Step 7: Whitelist Addresses
 
 1. In the Developer Portal, go to the "Configuration" tab.
 
-2. Under "Whitelisted Payment Addresses", add your World App wallet address (you can copy this from the UNO mini app in your World App).
+2. Under "Whitelisted Payment Addresses", uncheck disable whitelist,  add your World App wallet address (you can copy this from the UNO mini app in your World App).
+
+![IMG_2470](https://github.com/user-attachments/assets/bdfeccd2-8a6a-4c28-a7d3-fa94336be18a)
+
 
 3. Under "Permit2 Tokens", add your TokenFactory Contract Address that you deployed.
 
 4. Under "Contracts Endpoint", add your TokenFactory Contract Address.
+
+![image](https://github.com/user-attachments/assets/ccf4ad65-425f-4c77-a350-028668c33d55)
+
 
 ## Step 8: Update Environment Variables
 
 1. Add your APP_ID to your frontend environment by creating a `.env.local` file in the `my-app` folder:
 
 ```
-NEXT_PUBLIC_APP_ID=your_app_id_here
+NEXT_PUBLIC_WLD_APP_ID=your_app_id_here
 ```
 
 2. Alternatively, you can hardcode it in your code (not recommended for production):
@@ -1021,7 +1048,7 @@ NEXT_PUBLIC_APP_ID=your_app_id_here
 useWaitForTransactionReceipt({
   client,
   appConfig: {
-    app_id: process.env.NEXT_PUBLIC_APP_ID || "app_db9697e5c674170c43cfd9fe68a0ce37",
+    app_id: process.env.NEXT_PUBLIC_WLD_APP_ID || "app_db9697e5c674170c43cfd9fe68a0ce37",
   },
   transactionId,
 });
