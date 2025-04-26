@@ -887,6 +887,8 @@ yarn dev
    - Create new tokens
    - View your tokens
 
+5. you can see your token inside uno mini apps and transfer the token to other people 
+
 ## Key Learnings from This Session
 
 - Setting up a proper mobile-friendly UI using Tailwind CSS
