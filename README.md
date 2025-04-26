@@ -1196,12 +1196,6 @@ useWaitForTransactionReceipt({
 
 This completes the first session. Take a break and prepare for the Frontend Development session.
 
-![IMG_2471](https://github.com/user-attachments/assets/329eeb96-2c77-4917-801f-0ca73ff73faf)
-
-![IMG_2472](https://github.com/user-attachments/assets/39113616-7e84-4421-9137-57508cdbb928)
-
-![IMG_2473](https://github.com/user-attachments/assets/02f40d99-a307-40d4-b6c1-4f4346026ddd)
-
 
 First session done, we are going to break. and will continue to second session.
 
