@@ -896,6 +896,14 @@ export const TOKEN_FACTORY_ABI = [
 cd ../my-app
 ```
 
+install frontend dependencise
+
+```bash
+yarn install
+```
+
+NOTE: package manager are freedom, you use npm, yarn, pnpm or any
+
 2. Keep only the essential components:
    - `VerifyButton.tsx`
    - `WalletAuthButton.tsx`
