@@ -24,6 +24,18 @@ Before we begin, ensure you have the following requirements installed and set up
 - **World App** installed on your mobile device
 - An account on the **Worldcoin Developer Portal**
 
+
+## Important step you need install ngrok first
+
+- this is windows guide https://dashboard.ngrok.com/get-started/setup/windows
+
+![image](https://github.com/user-attachments/assets/5959c0aa-c98e-48c1-a3cc-baea579a640b)
+
+- this is macos guide https://dashboard.ngrok.com/get-started/setup/macos
+
+![image](https://github.com/user-attachments/assets/805a551e-60ea-4795-84c6-a8ae3b6d4f09)
+
+
 ## Step 1: Clone the Template Repository
 
 Start by cloning the mini apps template repository which provides a foundation for our project:
@@ -60,30 +72,38 @@ npx hardhat init
 ```typescript
 import { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox";
-import "@nomicfoundation/hardhat-verify";
-import "@nomicfoundation/hardhat-ignition-ethers";
-import "hardhat-vars";
+import { vars } from "hardhat/config";
+
 
 const config: HardhatUserConfig = {
-  solidity: "0.8.24",
+  solidity: "0.8.28",
   networks: {
+    hardhat: {
+      chainId: 31337,
+    },
+    localhost: {
+      url: "http://127.0.0.1:8545",
+      chainId: 31337,
+    },
     worldchain: {
-      url: "https://rpc.worldcoin.org",
-      chainId: 174842,
-      accounts: [`${process.env.PRIVATE_KEY}`],
+      url:
+        process.env.WORLDCHAIN_RPC_URL ||
+        "https://worldchain-mainnet.g.alchemy.com/public",
+      accounts: vars.has("PRIVATE_KEY") ? [`0x${vars.get("PRIVATE_KEY")}`] : [],
+      chainId: 480,
     },
   },
   etherscan: {
     apiKey: {
-      worldchain: "worldcoin", // No API key needed for Worldcoin
+      worldchain: "2UVZHURKTJ8CXPB4NEGGG8GM3KGMF6QEEK", // Get this from the Worldchain block explorer
     },
     customChains: [
       {
         network: "worldchain",
-        chainId: 174842,
+        chainId: 480,
         urls: {
-          apiURL: "https://explorer.worldcoin.org/api",
-          browserURL: "https://explorer.worldcoin.org/",
+          apiURL: "https://api.worldscan.org/api",
+          browserURL: "https://worldscan.org/",
         },
       },
     ],
@@ -92,6 +112,21 @@ const config: HardhatUserConfig = {
 
 export default config;
 ```
+
+for etherscan thats are my private key, if you want to get yoursel you can go to 
+
+- login in to this page : https://worldscan.org/
+
+- go to API dashboard
+
+![image](https://github.com/user-attachments/assets/e8bd8bde-0544-480f-b356-10a2a94a3325)
+
+- create your API Key
+
+![image](https://github.com/user-attachments/assets/6923e492-193d-4e22-a75f-1702909d81dd)
+
+
+- put that API key into etherscan object and api key props
 
 5. Add your private key as an environment variable:
 
@@ -106,20 +141,52 @@ Enter your private key when prompted (this is the key for the wallet you will us
 **Token.sol**
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Token is ERC20, ERC20Burnable, Ownable {
-    constructor(string memory name, string memory symbol, address initialOwner)
-        ERC20(name, symbol)
-        Ownable(initialOwner)
-    {}
+contract Token is ERC20, Ownable {
+    // State variable to store the token icon ID (0-7)
+    uint8 private _iconId;
 
-    function mint(address to, uint256 amount) public onlyOwner {
-        _mint(to, amount);
+    constructor(
+        address initialOwner,
+        uint256 initialSupply,
+        string memory tokenName,
+        string memory tokenSymbol,
+        uint8 initialIconId
+    ) 
+        ERC20(tokenName, tokenSymbol)
+        Ownable(initialOwner)
+    {
+        require(initialIconId <= 6, "Icon ID must be between 0 and 6");
+        
+        _transferOwnership(initialOwner);
+        _mint(initialOwner, initialSupply);
+        _iconId = initialIconId;
+    }
+
+    function burnToken(uint256 burnAmount) public onlyOwner {
+        require(balanceOf(msg.sender) >= burnAmount, "Error : you need more amount");
+        _burn(msg.sender, burnAmount);
+    }
+
+    /**
+     * @dev Returns the current icon ID of the token.
+     */
+    function iconId() public view returns (uint8) {
+        return _iconId;
+    }
+
+    /**
+     * @dev Changes the icon ID of the token.
+     * Can only be called by the owner.
+     * @param newIconId The new icon ID (must be between 0 and 7)
+     */
+    function setIconId(uint8 newIconId) public onlyOwner {
+        require(newIconId <= 7, "Icon ID must be between 0 and 7");
+        _iconId = newIconId;
     }
 }
 ```
@@ -127,17 +194,37 @@ contract Token is ERC20, ERC20Burnable, Ownable {
 **TokenFactory.sol**
 ```solidity
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.20;
 
 import "./Token.sol";
 
 contract TokenFactory {
-    event TokenCreated(address tokenAddress, string name, string symbol);
 
-    function createToken(string memory name, string memory symbol) public returns (address) {
-        Token token = new Token(name, symbol, msg.sender);
-        emit TokenCreated(address(token), name, symbol);
-        return address(token);
+    address[] public createdTokens;
+    event createTokenEvent(address indexed owner, address indexed tokenAddress, uint256 totalSupply, uint8 iconId);
+
+    function createToken(
+        address initialOwner, 
+        uint256 initialSupply, 
+        string memory tokenName, 
+        string memory tokenSymbol,
+        uint8 iconId
+    ) public returns (address) {
+        require(iconId <= 6, "Icon ID must be between 0 and 6");
+        
+        Token newToken = new Token(initialOwner, initialSupply, tokenName, tokenSymbol, iconId);
+        createdTokens.push(address(newToken));
+
+        emit createTokenEvent(initialOwner, address(newToken), initialSupply, iconId);
+        return address(newToken);
+    }
+
+    function getAllTokens() public view returns(address[] memory) {
+        return createdTokens;
+    }
+
+    function getTokensCount() public view returns(uint256) {
+        return createdTokens.length;
     }
 }
 ```
@@ -156,6 +243,8 @@ npx hardhat compile
 
 9. Create an ignition module file for deployment. First, create the directory:
 
+NOTE: if there's already folder ignition/modules/Lock.ts , just add new file `TokenFactory.ts`
+
 ```bash
 mkdir -p ignition/modules
 ```
@@ -163,12 +252,19 @@ mkdir -p ignition/modules
 Then create a file `TokenFactory.ts` in that directory:
 
 ```typescript
-import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
+const { buildModule } = require("@nomicfoundation/hardhat-ignition/modules");
 
-export default buildModule("TokenFactory", (m) => {
-  const tokenFactory = m.contract("TokenFactory");
+const TokenFactoryModule = buildModule("TokenModule", (m: any) => {
+  // Deploy the TokenFactory contract
+  const tokenFactory = m.contract("TokenFactory", []);
+
   return { tokenFactory };
+
+  // put deployed address here
+
 });
+
+module.exports = TokenFactoryModule;
 ```
 
 10. Deploy the contract:
@@ -181,10 +277,18 @@ npx hardhat ignition deploy ./ignition/modules/TokenFactory.ts --network worldch
 
 ```typescript
 export const TOKEN_FACTORY_ADDRESS = "YOUR_DEPLOYED_CONTRACT_ADDRESS";
+
+export const TOKEN_ABI = [
+// Copy the ABI from artifacts/contracts/Token.sol/Token.json
+  // Or from the output of the deployment
+]
+
 export const TOKEN_FACTORY_ABI = [
   // Copy the ABI from artifacts/contracts/TokenFactory.sol/TokenFactory.json
   // Or from the output of the deployment
 ];
+
+
 ```
 
 ## Step 3: Clean Up Frontend Project
