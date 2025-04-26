@@ -40,9 +40,9 @@ This step can be skipped if you don't have ETH on Worldcoin Mainnet. If you want
 1. Delete the existing smart-contracts folder and create a new one:
 
 ```bash
-rm -rf smart-contracts
-mkdir smart-contracts
-cd smart-contracts
+rm -rf smart-contract
+mkdir smart-contract
+cd smart-contract
 ```
 
 2. Initialize a new npm project and install Hardhat:
