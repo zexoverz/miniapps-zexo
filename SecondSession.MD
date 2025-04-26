@@ -855,6 +855,18 @@ export default function Page() {
 }
 ```
 
+Before Testing UI, make sure u update this using your app id :
+
+```
+useWaitForTransactionReceipt({
+      client,
+      appConfig: {
+        app_id: process.env.NEXT_PUBLIC_APP_ID || "app_8880be8110d2d3e185b24b84c993e38c",
+      },
+      transactionId,
+    });
+```
+
 ## Step 7: Testing the UI
 
 At this point, you should have a functional UI for your mini app. Let's test it:
