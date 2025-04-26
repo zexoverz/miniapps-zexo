@@ -956,7 +956,7 @@ export function VerifyButton({ onVerificationSuccess }: VerifyButtonProps) {
       setVerificationError(null);
 
       const verifyPayload: VerifyCommandInput = {
-        action: process.env.NEXT_PUBLIC_WLD_ACTION_ID || "web3-template",
+        action: "web3-template",
         signal: "",
         verification_level: VerificationLevel.Device,
       };
@@ -1036,7 +1036,7 @@ export function VerifyButton({ onVerificationSuccess }: VerifyButtonProps) {
         className="w-full max-w-xs px-8 py-4 bg-blue-500 text-white font-medium text-lg rounded-xl shadow-sm hover:bg-blue-600 active:bg-blue-700 transition-colors touch-manipulation flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
       >
         <Shield className="w-5 h-5" />
-        {isVerifying ? "Verifying..." : "Verify to Claim"}
+        {isVerifying ? "Verifying..." : "Verify to open"}
       </button>
     </>
   );
