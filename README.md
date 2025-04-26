@@ -1047,13 +1047,15 @@ export function VerifyButton({ onVerificationSuccess }: VerifyButtonProps) {
 
 ```tsx
 import { useState } from 'react';
-import VerifyButton from '../components/VerifyButton';
-import WalletAuthButton from '../components/WalletAuthButton';
-import TokenFactory from '../components/TokenFactory';
+import TokenFactory from "@/components/TokenFactory";
+import { useSession } from 'next-auth/react';
+import { VerifyButton } from '@/components/VerifyButton';
+import { WalletAuthButton } from '@/components/wallet-auth-button';
 
 export default function Home() {
   const [walletConnected, setWalletConnected] = useState(false);
   const [verified, setVerified] = useState(false);
+  const { data: session } = useSession();
 
   const handleWalletConnected = () => {
     setWalletConnected(true);
