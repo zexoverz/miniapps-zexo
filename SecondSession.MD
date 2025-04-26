@@ -887,8 +887,6 @@ yarn dev
    - Create new tokens
    - View your tokens
 
-In the next session, we'll implement the full blockchain integration and add transfer functionality.
-
 ## Key Learnings from This Session
 
 - Setting up a proper mobile-friendly UI using Tailwind CSS
